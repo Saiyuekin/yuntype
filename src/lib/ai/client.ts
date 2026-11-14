@@ -127,23 +127,17 @@ export const chatProviderPresets: ChatProviderPreset[] = [
 ]
 
 // ═══════════════════════════════════════
-//  localStorage 持久化
+//  密钥安全存储(默认仅本次会话,见 secure-storage.ts)
 // ═══════════════════════════════════════
 
-const STORAGE_KEY = 'yuntype_ai_chat_config'
+import { CHAT_CONFIG_KEY, loadSecret, saveSecret } from './secure-storage'
 
 export function loadChatConfig(): AIClientConfig | null {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return null
-    return JSON.parse(raw)
-  } catch {
-    return null
-  }
+  return loadSecret<AIClientConfig>(CHAT_CONFIG_KEY)
 }
 
 export function saveChatConfig(config: AIClientConfig): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(config))
+  saveSecret(CHAT_CONFIG_KEY, config)
 }
 
 // ═══════════════════════════════════════

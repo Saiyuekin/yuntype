@@ -46,16 +46,13 @@ export default function WebGenPanel() {
     downloadHtml(result.html, name)
   }
 
-  // 将生成的 HTML 写入 iframe
+  // 将生成的 HTML 载入 iframe — blob URL + 纯沙箱:
+  // 预览中的脚本可以运行,但运行在不透明源里,读不到本页的 localStorage(密钥)
   useEffect(() => {
-    if (result?.html && iframeRef.current) {
-      const doc = iframeRef.current.contentDocument
-      if (doc) {
-        doc.open()
-        doc.write(result.html)
-        doc.close()
-      }
-    }
+    if (!result?.html || !iframeRef.current) return
+    const url = URL.createObjectURL(new Blob([result.html], { type: 'text/html' }))
+    iframeRef.current.src = url
+    return () => URL.revokeObjectURL(url)
   }, [result?.html])
 
   return (
@@ -172,7 +169,7 @@ export default function WebGenPanel() {
               <div className="webgen-browser-frame">
                 <iframe
                   ref={iframeRef}
-                  sandbox="allow-scripts allow-same-origin"
+                  sandbox="allow-scripts"
                   title="网页预览"
                 />
               </div>

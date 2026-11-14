@@ -104,23 +104,17 @@ export function getColorMood(colorName: string): string {
 }
 
 // ═══════════════════════════════════════
-//  localStorage 存储
+//  密钥安全存储(默认仅本次会话,见 secure-storage.ts)
 // ═══════════════════════════════════════
 
-const STORAGE_KEY = 'yuntype_ai_image_config'
+import { IMAGE_CONFIG_KEY, loadSecret, saveSecret } from './secure-storage'
 
 export function loadAIImageConfig(): AIImageConfig | null {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return null
-    return JSON.parse(raw)
-  } catch {
-    return null
-  }
+  return loadSecret<AIImageConfig>(IMAGE_CONFIG_KEY)
 }
 
 export function saveAIImageConfig(config: AIImageConfig): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(config))
+  saveSecret(IMAGE_CONFIG_KEY, config)
 }
 
 // ═══════════════════════════════════════

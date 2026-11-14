@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { theme, type AccentTheme } from '../lib/theme'
+import { isSessionOnly, setSessionOnly, clearAllAIKeys } from '../lib/ai/secure-storage'
 
 interface ProviderOption {
   id: string
@@ -42,6 +43,20 @@ export function APIConfigForm({
   const [apiKey, setApiKey] = useState(config?.apiKey || '')
   const [baseUrl, setBaseUrl] = useState(config?.baseUrl || providers[0]?.baseUrl || '')
   const [model, setModel] = useState(config?.model || providers[0]?.defaultModel || '')
+  const [sessionOnly, updateSessionOnly] = useState(() => isSessionOnly())
+  const [cleared, setCleared] = useState(false)
+
+  const handleToggleSession = (v: boolean) => {
+    setSessionOnly(v)
+    updateSessionOnly(v)
+  }
+
+  const handleClearKeys = () => {
+    clearAllAIKeys()
+    setApiKey('')
+    setCleared(true)
+    window.setTimeout(() => setCleared(false), 2000)
+  }
 
   useEffect(() => {
     const preset = providers.find(p => p.id === provider)
@@ -114,6 +129,37 @@ export function APIConfigForm({
             outline: 'none', fontFamily: 'monospace',
           }}
         />
+        <div style={{ fontSize: '10px', color: theme.muted, marginTop: '5px', lineHeight: 1.5 }}>
+          🔒 密钥仅保存在你的浏览器，直接发送至 AI 服务商，不经过任何中间服务器
+        </div>
+      </div>
+
+      <div style={{
+        display: 'flex', flexDirection: 'column', gap: '6px',
+        padding: '10px', borderRadius: '6px',
+        background: '#fafafa', border: `1px solid ${theme.border}`,
+      }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '7px', fontSize: '11.5px', color: theme.text, cursor: 'pointer', userSelect: 'none' }}>
+          <input
+            type="checkbox"
+            checked={sessionOnly}
+            onChange={e => handleToggleSession(e.target.checked)}
+            style={{ accentColor: accent.accent, width: '14px', height: '14px', cursor: 'pointer' }}
+          />
+          仅本次会话保存密钥（关闭浏览器自动清除）
+        </label>
+        <button
+          onClick={handleClearKeys}
+          style={{
+            alignSelf: 'flex-start', padding: '5px 12px', fontSize: '11px',
+            background: cleared ? '#f0fdf4' : '#fff',
+            color: cleared ? '#15803d' : '#b91c1c',
+            border: `1px solid ${cleared ? '#86efac' : '#fecaca'}`,
+            borderRadius: '5px', cursor: 'pointer',
+          }}
+        >
+          {cleared ? '✓ 已清除全部密钥' : '清除全部已存密钥'}
+        </button>
       </div>
 
       <div>

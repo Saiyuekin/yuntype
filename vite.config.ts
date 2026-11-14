@@ -16,10 +16,11 @@ const CSP_DIRECTIVES = [
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
   "font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net",
   "img-src 'self' data: blob: https: http:",
-  // 10 家 AI 提供商的 API 域名(与 src/lib/ai/client.ts 预设保持一致;自定义 baseUrl 不在白名单会被拦截)
-  "connect-src 'self' https://dashscope.aliyuncs.com https://api.deepseek.com https://ark.cn-beijing.volces.com https://api.openai.com https://generativelanguage.googleapis.com https://api.moonshot.cn https://open.bigmodel.cn https://api.siliconflow.cn https://api.anthropic.com https://api.x.ai",
+  // connect-src 放开为任意 https + 本地回环:产品支持"任意 OpenAI 兼容 API"(sub2api/one-api 中转、本地 LLM 等),
+  // 白名单会拦截合法的自定义端点。安全边界由 script-src 'self' 承担:注入脚本无法执行,就读不到密钥。
+  "connect-src 'self' https: http://localhost:* http://127.0.0.1:*",
   "worker-src 'self' blob:",
-  "frame-src 'self' blob:'",
+  "frame-src 'self' blob:",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
